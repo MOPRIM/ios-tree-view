@@ -15,5 +15,3 @@ FOUNDATION_EXPORT double UITreeViewVersionNumber;
 FOUNDATION_EXPORT const unsigned char UITreeViewVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <UITreeView/PublicHeader.h>
-
-
