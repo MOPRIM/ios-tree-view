@@ -8,23 +8,24 @@
 
 import Foundation
 
-protocol TreeNodeChangeListener {
+public protocol TreeNodeChangeListener {
     // protocol definition goes here
     func onDataSetChanged()
     func onWeightsChanged()
 }
 
+public enum TreeViewError: Error {
+    case noSuchElement(path: [String])
+}
+
 public class TreeAdapter {
-    
-    enum TreeViewError: Error {
-        case noSuchElement(path: [String])
-    }
     
     public init() {}
     
     private var rootNodes = [TreeNode]()
     private var depth: Int = 0
     private var minimumDepth = 1
+    var delegate: TreeNodeChangeListener?
     
     public func addRootNode(label: String, weight: Double, color: UIColor?, icon: UIImage?) -> TreeNode {
         let rootNode = TreeNode.rootNode(label: label, weight: weight, color: color, icon: icon)
@@ -76,6 +77,18 @@ public class TreeAdapter {
             }
         }
         throw TreeViewError.noSuchElement(path: path)
+    }
+    
+    public func notifyDataSetChanged() {
+        if let d = delegate {
+            d.onDataSetChanged()
+        }
+    }
+    
+    public func notifyWeightsChanged() {
+        if let d = delegate {
+            d.onWeightsChanged()
+        }
     }
     
     public func getRootNodes() -> [TreeNode] {

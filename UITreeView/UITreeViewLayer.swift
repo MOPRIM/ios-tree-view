@@ -8,11 +8,12 @@
 
 import UIKit
 
-class UITreeViewLayer: CALayer {
+class UITreeViewLayer: CALayer, TreeNodeChangeListener {
     
     private var drawableTreeNodes = [String : DrawableTreeNode]()
     
     /// Tells if the view is radial or not.
+    /// FIXME currently not in use, only radial view has been implemented
     @objc open var radialView: Bool = true {
         didSet {
             setNeedsDisplay()
@@ -20,6 +21,7 @@ class UITreeViewLayer: CALayer {
     }
     
     /// Tells if we use animations when weights are updated.
+    /// TODO implement the animation when weights are modifieds
     @objc open var doAnimate: Bool = true {
         didSet {
             setNeedsDisplay()
@@ -47,38 +49,12 @@ class UITreeViewLayer: CALayer {
         }
     }
     
-    /// The color of icons. Default is transparent
-    @objc open var colorIcons: UIColor = UIColor.clear {
-        didSet {
-            setNeedsDisplay()
-        }
-    }
-    
-    /// Tells if we add shadow below the ring, useful if not data
-    @objc open var addLayerShadow: Bool = true {
-        didSet {
-            setNeedsDisplay()
-        }
-    }
-  
-    /// the offset of the shadow
-    @objc open var layerShadowOffset: CGFloat = 15.0 {
-        didSet {
-            setNeedsDisplay()
-        }
-    }
-    
-    /// the color of the shadow
-    @objc open var layerShadowColor: UIColor = UIColor.darkGray {
-        didSet {
-            setNeedsDisplay()
-        }
-    }
-    
     /// the adapter
     var adapter: TreeAdapter? = nil {
         didSet {
-            // NSLog("did set adapter")
+            if let a = adapter {
+                a.delegate = self
+            }
             setNeedsDisplay()
         }
     }
@@ -92,8 +68,6 @@ class UITreeViewLayer: CALayer {
         // NSLog("calculatedLayerHeight: %f", self.calculatedLayerHeight)
         let offset = depth == 1 ? 0 : (CGFloat(depth - 1) * self.calculatedLayerHeight + self.calculatedLayerHeight * 0.05);
         let innerRadius = self.innerRadiusWeight * calculatedLayerHeight;
-//        NSLog("offset: %f", offset)
-//        NSLog("innerRadius: %f", innerRadius)
         return CGRect(
             x: centerX - innerRadius - offset,
             y: centerY - innerRadius - offset,
@@ -107,8 +81,6 @@ class UITreeViewLayer: CALayer {
         let centerY = bounds.height / 2;
         let offset = CGFloat(depth) * self.calculatedLayerHeight;
         let innerRadius = self.innerRadiusWeight * calculatedLayerHeight;
-//        NSLog("offset: %f", offset)
-//        NSLog("innerRadius: %f", innerRadius)
         return CGRect(
             x: centerX - innerRadius - offset,
             y: centerY - innerRadius - offset,
@@ -118,7 +90,6 @@ class UITreeViewLayer: CALayer {
     }
     
     private func setDrawableTreeNodes() {
-        // NSLog("setDrawableTreeNodes")
         self.drawableTreeNodes = [:]
         if let adt = adapter {
             makeDrawableTreeNodes(nodes: adt.getRootNodes(), parentStart: 0, parentSweep: 360, parentWeight: -1)
@@ -242,5 +213,13 @@ class UITreeViewLayer: CALayer {
         }
     }
     
+    func onDataSetChanged() {
+        setNeedsDisplay()
+    }
+    
+    func onWeightsChanged() {
+        // FIXME at the moment we reload all the time, but normally we should not have to reset everything when only weights change
+        self.onDataSetChanged()
+    }
     
 }
