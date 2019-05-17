@@ -67,18 +67,16 @@ class DrawableTreeNode {
         let radius = (outerCircle.width - innerCircle.width) / 4.0 + innerCircle.width / 2.0
         let length = CGFloat((sweep / 360.0) * 2 * Double.pi) * radius
         if let i = self.node.getIcon() {
-            if i.cgImage == nil || self.iconSize >= length {
+            if self.iconSize >= length {
                 // To small to print or nothing to print
                 return
             }
-            context.saveGState()
             let middle = getMiddlePoint()
             let iconRect = CGRect(x: middle.x - iconSize / 2.0,
                                   y: middle.y - iconSize / 2.0,
                                   width: iconSize,
                                   height: iconSize)
-            context.draw(i.cgImage!, in: iconRect)
-            context.restoreGState()
+            i.draw(in: iconRect)
         }
     }
     
